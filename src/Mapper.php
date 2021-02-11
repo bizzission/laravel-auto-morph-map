@@ -136,7 +136,11 @@ class Mapper
 
                 $model = $namespace . $name;
 
-                if (! class_exists($model, false)) {
+                try {
+                    if (!class_exists($model)) {
+                        continue;
+                    }
+                } catch (Exception $e) {
                     continue;
                 }
 
