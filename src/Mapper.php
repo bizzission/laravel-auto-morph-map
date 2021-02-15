@@ -16,6 +16,9 @@ use Symfony\Component\Finder\Finder;
 class Mapper
 {
     protected static $scanned = false;
+    
+    protected static $modelMap = null;
+    
     /**
      * Scan all model directories and automatically alias the polymorphic types of Eloquent models.
      *
@@ -30,13 +33,20 @@ class Mapper
             return;
         }
 
-        $models = $this->getModels();
-
-        $map = $this->getModelMap($models);
+        $map = $this->getMappedModels();
 
         $this->mapModels($map);
         
         self::$scanned = true;
+    }
+    
+    public function getMappedModels()
+    {
+        if (!self::$modelMap) {
+            $models = $this->getModels();
+            self::$modelMap = $this->getModelMap($models);
+        }
+        return self::$modelMap;
     }
 
     /**
