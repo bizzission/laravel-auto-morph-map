@@ -49,8 +49,7 @@ class CacheMorphMap extends Command
     {
         $cache = $this->mapper->getCachePath();
 
-        $models = $this->mapper->getModels();
-        $map = $this->mapper->getModelMap($models);
+        $map = $this->mapper->getMappedModels();
 
         file_put_contents(
             $cache,
