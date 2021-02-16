@@ -119,6 +119,11 @@ class Mapper
      */
     protected function getModelPaths(array $config) : array
     {
+        $configPaths = config('auto-morph-map.paths');
+        if ($configPaths && count($configPaths) > 0) {
+            return $configPaths;
+        }
+        
         $paths = Arr::get($config, 'autoload.psr-4');
 
         $paths = collect($paths)
