@@ -77,14 +77,19 @@ class Mapper
      *
      * @return array
      */
-    public function getModelMap(array $models) : array
+    public function getModelMap(array $models): array
     {
         $map = [];
 
-        foreach ($models as $model) {
-            Arr::set($map, $this->getModelAlias($model), $model);
-        }
+        $traitsToSkip = config('auto-morph-map.traits_to_skip') ?? [];
 
+        foreach ($models as $model) {
+            $reflected = new ReflectionClass($model);
+            $count = count(array_intersect($traitsToSkip, $reflected->getTraitNames()));
+            if ($count === 0) {
+                Arr::set($map, $this->getModelAlias($model), $model);
+            }
+        }
         return $map;
     }
 
