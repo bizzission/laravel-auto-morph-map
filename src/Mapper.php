@@ -213,7 +213,10 @@ class Mapper
         $callback = config('auto-morph-map.conversion');
 
         if ($callback && is_callable($callback)) {
-            return $callback($model);
+            $alias = $callback($model);
+            if ($alias !== false) {
+                return $alias;
+            }
         }
 
         $name = $this->getModelName($model);
