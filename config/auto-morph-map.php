@@ -17,6 +17,10 @@ return [
      */
 
     'case' => CaseTypes::SNAKE_CASE,
+    
+    'traits_to_skip' => [
+        'Modules\Gdpr\Traits\HasParentMorphs'
+    ],
 
     /**
      * If you wish, you can override the naming and conversion altogether
