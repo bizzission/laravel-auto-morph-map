@@ -219,7 +219,10 @@ class Mapper
             }
         }
 
-        $name = $this->getModelName($model);
+        $name = $this->checkTraitsConversion($model);
+        if ($name == null) {
+            $name = $this->getModelName($model);
+        }
 
         switch (config('auto-morph-map.case')) {
             case CaseTypes::SNAKE_CASE:
@@ -238,6 +241,21 @@ class Mapper
             default:
                 return $name;
         }
+    }
+    
+    private function checkTraitsConversion(string $model)
+    {
+        $reflected = new ReflectionClass($model);
+        $traitsName = $reflected->getTraitNames();
+
+        $traitList = config('auto-morph-map.traits_conversion');
+
+        foreach ($traitList as $trait => $method) {
+            if (in_array($trait, $traitsName)) {
+                return app($model)->{$method}($model);
+            }
+        }
+        return null;
     }
 
     /**
