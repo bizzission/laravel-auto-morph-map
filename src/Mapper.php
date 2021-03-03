@@ -262,21 +262,6 @@ class Mapper
 
         foreach ($traitList as $trait => $method) {
             if (in_array($trait, $traitsName)) {
-                return app($model)->{$method}($model);
-            }
-        }
-        return null;
-    }
-    
-    private function checkTraitsConversion(string $model)
-    {
-        $reflected = new ReflectionClass($model);
-        $traitsName = $reflected->getTraitNames();
-
-        $traitList = config('auto-morph-map.traits_conversion');
-
-        foreach ($traitList as $trait => $method) {
-            if (in_array($trait, $traitsName)) {
                 switch ($method) {
                     case NamingSchemes::CLASS_BASENAME:
                         return class_basename($model);
