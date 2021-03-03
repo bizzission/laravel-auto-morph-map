@@ -19,6 +19,8 @@ class Mapper
     
     protected static $modelMap = null;
     
+    protected $command = null;
+    
     /**
      * Scan all model directories and automatically alias the polymorphic types of Eloquent models.
      *
@@ -40,8 +42,10 @@ class Mapper
         self::$scanned = true;
     }
     
-    public function getMappedModels()
+    public function getMappedModels($command = null)
     {
+
+        $this->command = $command;
         if (!self::$modelMap) {
             $models = $this->getModels();
             self::$modelMap = $this->getModelMap($models);
@@ -87,7 +91,13 @@ class Mapper
             $reflected = new ReflectionClass($model);
             $count = count(array_intersect($traitsToSkip, $reflected->getTraitNames()));
             if ($count === 0) {
-                Arr::set($map, $this->getModelAlias($model), $model);
+                $alias = $this->getModelAlias($model);
+                if (Arr::exists($map, $alias) && app()->runningInConsole()) {
+                    $previous = Arr::get($map, $alias);
+                    $this->command->warn("-> $alias already set as $previous. Replaced by $model");
+                }
+
+                Arr::set($map, $alias, $model);
             }
         }
         return $map;
@@ -253,6 +263,26 @@ class Mapper
         foreach ($traitList as $trait => $method) {
             if (in_array($trait, $traitsName)) {
                 return app($model)->{$method}($model);
+            }
+        }
+        return null;
+    }
+    
+    private function checkTraitsConversion(string $model)
+    {
+        $reflected = new ReflectionClass($model);
+        $traitsName = $reflected->getTraitNames();
+
+        $traitList = config('auto-morph-map.traits_conversion');
+
+        foreach ($traitList as $trait => $method) {
+            if (in_array($trait, $traitsName)) {
+                switch ($method) {
+                    case NamingSchemes::CLASS_BASENAME:
+                        return class_basename($model);
+                    default:
+                        return app($model)->{$method}($model);
+                }
             }
         }
         return null;
